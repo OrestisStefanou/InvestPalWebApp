@@ -1,0 +1,48 @@
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+
+export function AllocationChart({ data }) {
+    const { allocations, allocation_type, chart_type } = data;
+    const title = allocation_type ? `${allocation_type.replace('_', ' ')} Allocation` : 'Allocation';
+
+    // Custom colors or map from data if provided
+    const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1'];
+
+    const innerRadius = chart_type === 'donut' ? 60 : 0;
+
+    return (
+        <Card className="w-full">
+            <CardHeader className="pb-2">
+                <CardTitle className="capitalize">{title}</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[300px] w-full flex flex-col items-center justify-center">
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie
+                            data={allocations}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={innerRadius}
+                            outerRadius={80}
+                            paddingAngle={2}
+                            dataKey="value"
+                            nameKey="label"
+                        >
+                            {allocations?.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <Tooltip
+                            formatter={(value, name, props) => {
+                                const percent = props.payload.percentage || ((value / allocations.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1);
+                                return [`${percent}% ($${value.toLocaleString()})`, name];
+                            }}
+                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        />
+                        <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                    </PieChart>
+                </ResponsiveContainer>
+            </CardContent>
+        </Card>
+    );
+}
