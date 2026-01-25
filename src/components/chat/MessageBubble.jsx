@@ -15,6 +15,8 @@ import { ComparisonTable } from "../widgets/ComparisonTable";
 import { FinancialStatement } from "../widgets/FinancialStatement";
 import { InvestmentCalculator } from "../widgets/InvestmentCalculator";
 
+import { Insights } from "../widgets/Insights";
+
 const ComponentRenderer = ({ component, onAction }) => {
     switch (component.type) {
         case 'text':
@@ -46,15 +48,7 @@ const ComponentRenderer = ({ component, onAction }) => {
         case 'action_suggestions':
             return <ActionSuggestions data={component} onAction={onAction} />;
         case 'insights':
-            // Quick insights implementation inline for now or placeholder
-            return (
-                <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
-                    <h4 className="font-semibold text-indigo-900 mb-2">{component.headline}</h4>
-                    <ul className="list-disc list-inside space-y-1 text-indigo-800 text-sm">
-                        {component.insights?.map((insight, i) => <li key={i}>{insight}</li>)}
-                    </ul>
-                </div>
-            );
+            return <Insights data={component} />;
         default:
             return (
                 <div className="p-3 bg-red-50 text-red-600 text-xs rounded border border-red-200">

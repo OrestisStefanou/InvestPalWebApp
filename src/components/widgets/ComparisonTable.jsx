@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 
 export function ComparisonTable({ data }) {
-    const { entities, rows, comparison_type } = data;
+    const { entities = [], rows = [], comparison_type } = data;
 
     return (
         <Card className="w-full overflow-hidden">
@@ -21,18 +21,25 @@ export function ComparisonTable({ data }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {rows.map((row, idx) => (
-                            <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
-                                <td className="px-6 py-3 font-medium text-gray-900 border-r border-gray-50 bg-white sticky left-0">{row.metric}</td>
-                                {entities.map((entity, i) => (
-                                    <td key={i} className="px-6 py-3 text-gray-600">
-                                        {typeof row.values[entity] === 'number'
-                                            ? row.values[entity].toLocaleString()
-                                            : row.values[entity] || '-'}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
+                        {rows.map((row, idx) => {
+                            const formatValue = (val, format) => {
+                                if (val === null || val === undefined) return '-';
+                                if (format === 'currency') return `$${val.toLocaleString()}`;
+                                if (format === 'percentage') return `${val}%`;
+                                return typeof val === 'number' ? val.toLocaleString() : val;
+                            };
+
+                            return (
+                                <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                                    <td className="px-6 py-3 font-medium text-gray-900 border-r border-gray-50 bg-white sticky left-0">{row.metric}</td>
+                                    {entities.map((entity, i) => (
+                                        <td key={i} className="px-6 py-3 text-gray-600">
+                                            {formatValue(row.values[entity], row.format)}
+                                        </td>
+                                    ))}
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </CardContent>

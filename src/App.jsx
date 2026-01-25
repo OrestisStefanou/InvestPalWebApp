@@ -3,11 +3,15 @@ import { MessageBubble } from './components/chat/MessageBubble';
 import { InputArea } from './components/chat/InputArea';
 import { Button } from './components/ui/Button';
 import { Loader2, Plus, MessageSquare } from 'lucide-react';
+import { jwtDecode } from "jwt-decode";
+import { SignIn } from './components/auth/SignIn';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
-const API_BASE_URL = 'http://localhost:8000';
-const USER_ID = 'orestis_user_id';
+const API_BASE_URL = import.meta.env.VITE_INVESTPAL_API_BASE_URL || 'http://localhost:8000';
+
 
 function App() {
+  const [user, setUser] = useState(null);
   const [sessionId, setSessionId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -24,17 +28,20 @@ function App() {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  // Create new session on mount
+  // Create new session when user authenticates
   useEffect(() => {
-    createSession();
-  }, []);
+    if (user) {
+      createSession();
+    }
+  }, [user]);
 
   const createSession = async () => {
+    if (!user) return;
     try {
       const response = await fetch(`${API_BASE_URL}/session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: USER_ID })
+        body: JSON.stringify({ user_id: user.id })
       });
 
       if (!response.ok) throw new Error('Failed to create session');
@@ -102,6 +109,41 @@ function App() {
     createSession(); // Optional: create new session on clear
   }
 
+  const handleLoginSuccess = async (credentialResponse) => {
+    try {
+      const decoded = jwtDecode(credentialResponse.credential);
+      const userId = decoded.email;
+
+      // Create user context (ensure user exists on backend)
+      try {
+        await fetch(`${API_BASE_URL}/user_context`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            user_profile: { name: decoded.name, picture: decoded.picture },
+            user_portfolio: [] // Empty initial portfolio
+          })
+        });
+      } catch (err) {
+        console.warn('User context creation skipped', err);
+      }
+
+      setUser({
+        id: userId,
+        name: decoded.name,
+        picture: decoded.picture
+      });
+    } catch (err) {
+      console.error('Login failed', err);
+      setError('Login failed. Please try again.');
+    }
+  };
+
+  if (!user) {
+    return <SignIn onLoginSuccess={handleLoginSuccess} onLoginError={() => setError('Login Failed')} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       {/* Header */}
@@ -113,7 +155,10 @@ function App() {
             </div>
             <div>
               <h1 className="font-bold text-gray-900 tracking-tight">InvestPal</h1>
-              <p className="text-[10px] text-gray-500 font-medium">AI Financial Assistant</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] text-gray-500 font-medium">AI Financial Assistant</p>
+                {user && <span className="text-[10px] text-blue-600 font-medium">| {user.name}</span>}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -164,12 +209,13 @@ function App() {
         ) : (
           <div className="space-y-6 pb-4">
             {messages.map((msg, index) => (
-              <MessageBubble
-                key={index}
-                message={msg}
-                isUser={msg.role === 'user'}
-                onAction={handleSendMessage}
-              />
+              <ErrorBoundary key={index}>
+                <MessageBubble
+                  message={msg}
+                  isUser={msg.role === 'user'}
+                  onAction={handleSendMessage}
+                />
+              </ErrorBoundary>
             ))}
 
             {isLoading && (

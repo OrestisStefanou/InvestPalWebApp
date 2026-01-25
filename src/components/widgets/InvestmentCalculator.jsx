@@ -2,10 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 
 export function InvestmentCalculator({ data }) {
-    const { initial_investment, annual_return, years, projections } = data;
+    const { initial_investment, annual_return, years, projections, final_value, total_return, total_return_percent } = data;
 
-    const finalValue = projections && projections.length > 0 ? projections[projections.length - 1].value : 0;
-    const totalGain = finalValue - (projections ? projections[projections.length - 1].contributions : initial_investment);
+    const lastProjection = projections && projections.length > 0 ? projections[projections.length - 1] : null;
+    const displayFinalValue = final_value || (lastProjection ? lastProjection.value : 0);
+    const displayTotalGain = total_return || (displayFinalValue - (lastProjection ? lastProjection.contributions : initial_investment));
+    const displayTotalReturnPercent = total_return_percent || (initial_investment > 0 ? (displayTotalGain / initial_investment) * 100 : 0);
 
     return (
         <Card className="w-full">
@@ -16,14 +18,18 @@ export function InvestmentCalculator({ data }) {
                 </CardDescription>
             </CardHeader>
             <CardContent className="pt-4">
-                <div className="mb-6 grid grid-cols-2 gap-4">
-                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                        <p className="text-xs text-blue-600 font-medium uppercase">projected value</p>
-                        <p className="text-xl font-bold text-blue-900">${Math.round(finalValue).toLocaleString()}</p>
+                <div className="mb-6 grid grid-cols-3 gap-3">
+                    <div className="p-2.5 bg-blue-50 rounded-lg border border-blue-100 text-center">
+                        <p className="text-[10px] text-blue-600 font-bold uppercase mb-1">Final Value</p>
+                        <p className="text-base font-bold text-blue-900">${Math.round(displayFinalValue).toLocaleString()}</p>
                     </div>
-                    <div className="p-3 bg-green-50 rounded-lg border border-green-100">
-                        <p className="text-xs text-green-600 font-medium uppercase">total earnings</p>
-                        <p className="text-xl font-bold text-green-900">+${Math.round(totalGain).toLocaleString()}</p>
+                    <div className="p-2.5 bg-green-50 rounded-lg border border-green-100 text-center">
+                        <p className="text-[10px] text-green-600 font-bold uppercase mb-1">Total Earned</p>
+                        <p className="text-base font-bold text-green-900">${Math.round(displayTotalGain).toLocaleString()}</p>
+                    </div>
+                    <div className="p-2.5 bg-indigo-50 rounded-lg border border-indigo-100 text-center">
+                        <p className="text-[10px] text-indigo-600 font-bold uppercase mb-1">Total Return</p>
+                        <p className="text-base font-bold text-indigo-900">+{displayTotalReturnPercent.toFixed(1)}%</p>
                     </div>
                 </div>
 

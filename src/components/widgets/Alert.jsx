@@ -2,7 +2,7 @@ import { AlertTriangle, CheckCircle, Info, XCircle } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 export function Alert({ data }) {
-    const { message, severity = "info", actionable } = data;
+    const { message, severity = "info", actionable, action_label } = data;
 
     const styles = {
         info: "bg-blue-50 text-blue-700 border-blue-200",
@@ -26,7 +26,7 @@ export function Alert({ data }) {
             </div>
             {actionable && (
                 <button className="text-xs font-bold underline decoration-2 underline-offset-2 hover:opacity-80">
-                    View
+                    {action_label || "View"}
                 </button>
             )}
         </div>
