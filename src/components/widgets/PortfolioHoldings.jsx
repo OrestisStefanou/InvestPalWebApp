@@ -70,7 +70,7 @@ export function PortfolioHoldings({ data }) {
                                         <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                                             <div className="flex flex-col">
                                                 <span>{holding.symbol}</span>
-                                                <span className="text-[10px] text-gray-400 font-normal truncate max-w-[120px]">
+                                                <span className="text-[10px] text-gray-400 font-normal">
                                                     {holding.sector || holding.name}
                                                 </span>
                                             </div>

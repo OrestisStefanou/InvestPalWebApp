@@ -33,7 +33,7 @@ export function MetricsGrid({ data }) {
                 >
                     {metrics?.map((metric, idx) => (
                         <div key={idx} className="p-3 rounded-lg bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                            <p className="text-xs text-gray-500 font-medium truncate mb-1">{metric.label}</p>
+                            <p className="text-xs text-gray-500 font-medium mb-1">{metric.label}</p>
                             <p className="font-semibold text-gray-900 tracking-tight">
                                 {formatValue(metric.value, metric.format)}
                                 {metric.change !== undefined && (

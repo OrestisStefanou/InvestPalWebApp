@@ -4,12 +4,17 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 export function SectorPerformance({ data }) {
     const { sectors, visualization } = data;
 
-    const chartData = sectors?.map(s => ({
-        name: s.sector,
-        value: s.return_1d || s.return_ytd || 0
-        // Prioritize 1d return for now, but label should indicate which one.
-        // In a real app, we might toggle or show multiple.
-    })).sort((a, b) => b.value - a.value); // Sort descending
+    const chartData = sectors?.map(s => {
+        // Find 1D return, otherwise YTD, otherwise first available
+        const perf = s.performance_data?.find(p => p.period === '1D')
+            || s.performance_data?.find(p => p.period === 'YTD')
+            || s.performance_data?.[0];
+
+        return {
+            name: s.sector,
+            value: perf ? perf.performance : 0
+        };
+    }).sort((a, b) => b.value - a.value); // Sort descending
 
     return (
         <Card className="w-full">

@@ -25,7 +25,7 @@ export function SecurityCard({ data }) {
             </CardHeader>
             <CardContent>
                 {description && (
-                    <p className="text-xs text-gray-500 mb-4 line-clamp-3 italic">
+                    <p className="text-xs text-gray-500 mb-4 italic">
                         {description}
                     </p>
                 )}
@@ -48,7 +48,7 @@ export function SecurityCard({ data }) {
                     </div>
                     <div>
                         <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Sector / Industry</p>
-                        <p className="font-medium text-xs truncate">
+                        <p className="font-medium text-xs">
                             {sector || industry ? `${sector || ''}${sector && industry ? ' • ' : ''}${industry || ''}` : 'N/A'}
                         </p>
                     </div>

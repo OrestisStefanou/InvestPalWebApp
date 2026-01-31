@@ -5,7 +5,7 @@ import { SecurityCard } from "../widgets/SecurityCard";
 import { MetricsGrid } from "../widgets/MetricsGrid";
 import { NewsFeed } from "../widgets/NewsFeed";
 import { PortfolioHoldings } from "../widgets/PortfolioHoldings";
-import { TimeSeriesChart } from "../widgets/TimeSeriesChart";
+import { AssetPerformance } from "../widgets/AssetPerformance";
 import { ActionSuggestions } from "../widgets/ActionSuggestions";
 import { SectorPerformance } from "../widgets/SectorPerformance";
 import { Alert } from "../widgets/Alert";
@@ -29,8 +29,8 @@ const ComponentRenderer = ({ component, onAction }) => {
             return <NewsFeed data={component} />;
         case 'portfolio_holdings':
             return <PortfolioHoldings data={component} />;
-        case 'time_series_chart':
-            return <TimeSeriesChart data={component} />;
+        case 'asset_performance':
+            return <AssetPerformance data={component} />;
         case 'sector_performance':
             return <SectorPerformance data={component} />;
         case 'alert':

@@ -22,7 +22,7 @@ export function NewsFeed({ data }) {
                                     <h4 className="text-sm font-semibold text-gray-900 leading-snug group-hover:text-blue-600 transition-colors">
                                         {article.title}
                                     </h4>
-                                    <p className="text-xs text-gray-500 mt-2 line-clamp-2">{article.summary}</p>
+                                    <p className="text-xs text-gray-500 mt-2">{article.summary}</p>
                                     <div className="flex items-center gap-3 mt-2">
                                         <span className="text-[10px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
                                             {article.source}

@@ -25,7 +25,10 @@ export function Alert({ data }) {
                 {message}
             </div>
             {actionable && (
-                <button className="text-xs font-bold underline decoration-2 underline-offset-2 hover:opacity-80">
+                <button
+                    onClick={() => data.action_payload && window.dispatchEvent(new CustomEvent('alert-action', { detail: data.action_payload }))}
+                    className="text-xs font-bold underline decoration-2 underline-offset-2 hover:opacity-80"
+                >
                     {action_label || "View"}
                 </button>
             )}
