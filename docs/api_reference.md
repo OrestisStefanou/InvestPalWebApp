@@ -1,13 +1,11 @@
 # API Reference
 
-## Post Generative UI Message
-
-**POST** `/chat/gen-ui`
+### Post Generative UI Message
+`POST /chat/gen-ui`
 
 Send a message to the AI investment advisor for a specific session and receive a structured response containing various UI components (charts, data grids, text, etc.) for dynamic rendering.
 
-### Request Body
-
+#### Request Body
 ```json
 {
   "session_id": "string",
@@ -15,9 +13,8 @@ Send a message to the AI investment advisor for a specific session and receive a
 }
 ```
 
-### Response Body
-
-The response follows the GenerativeUIResponseFormat, returning a list of identifiable UI components.
+#### Response Body
+The response follows the `GenerativeUIResponseFormat`, returning a list of identifiable UI components.
 
 ```json
 {
@@ -35,37 +32,40 @@ The response follows the GenerativeUIResponseFormat, returning a list of identif
 }
 ```
 
-### Component Types
-
+#### Component Types
 The `type` field determines the schema of the component. Below are the available component types and their specific fields.
 
-#### 1. Text (`text`) 
+**1. Text (`text`)**
 Basic text content.
 - `content` (string): The text to display.
 - `format` (string): `plain` or `markdown`.
 
-#### 2. Insights (`insights`)
+**2. Insights (`insights`)**
 Key insights and summary information.
 - `headline` (string): Main headline.
 - `insights` (array of strings): List of key insight bullet points.
 - `context` (string): Additional context (optional).
 
-#### 3. Alert (`alert`)
+**3. Alert (`alert`)**
 Notification or warning banner.
 - `message` (string): Alert content.
 - `severity` (string): `info`, `warning`, `success`, `error`.
 - `actionable` (bool): If the alert has an action.
+- `action_label` (string): Label for the action button (optional).
+- `action_payload` (object): Data payload for the action (optional).
 
-#### 4. Security Card (`security_card`)
+**4. Security Card (`security_card`)**
 Snapshot of a financial security.
 - `symbol` (string): Ticker symbol.
 - `name` (string): Security name.
 - `price` (float): Current price.
 - `market_cap` (float): Market capitalization (optional).
-- `asset_type` (string): `stock`, `etf`, `video`, `commodity`, `index`.
+- `description` (string): Description of the security (optional).
+- `industry` (string): Industry the security belongs to (optional).
+- `asset_type` (string): `stock`, `etf`, `crypto`, `commodity`, `index`.
 - `sector` (string): Sector name (optional).
 
-#### 5. Metrics Grid (`metrics_grid`)
+**5. Metrics Grid (`metrics_grid`)**
 A grid of key financial metrics.
 - `metrics` (array of objects):
     - `label` (string): Display label.
@@ -74,26 +74,29 @@ A grid of key financial metrics.
     - `format` (string): `currency`, `percentage`, `number`, `ratio`, `date` (optional).
 - `columns` (int): Grid column count (default 2).
 
-#### 6. Economic Indicator (`economic_indicator`)
+**6. Economic Indicator (`economic_indicator`)**
 Macroeconomic data points.
 - `indicator_name` (string): Name (e.g., GDP).
 - `current_value` (float): Latest value.
-- `previous_value` (float): Previous period value.
-- `trend` (string): `up`, `down`, `stable`.
+- `previous_value` (float): Previous period value (optional).
+- `change` (float): Change from previous value (optional).
+- `trend` (string): `up`, `down`, `stable` (optional).
 - `as_of_date` (string): Date of data.
+- `chart_data` (array of objects): Historical time series data (optional).
 
-#### 7. Portfolio Holdings (`portfolio_holdings`)
+**7. Portfolio Holdings (`portfolio_holdings`)**
 Table of portfolio positions.
 - `holdings` (array of objects):
     - `symbol` (string): Security symbol.
     - `name` (string): Security name.
     - `weight` (float): Portfolio weight percentage.
     - `value` (float): Total value of holding (optional).
-    - `shares` (float): Number of shares (optional).
+    - `shares` (float): Number of shares held (optional).
     - `sector` (string): Sector classification (optional).
-- `total_value` (float): Total portfolio value.
+- `total_value` (float): Total portfolio value (optional).
+- `as_of_date` (string): Date the holdings data is from (optional).
 
-#### 8. Comparison Table (`comparison_table`)
+**8. Comparison Table (`comparison_table`)**
 Side-by-side comparison of entities.
 - `entities` (array of strings): Names/symbols being compared (column headers).
 - `rows` (array of objects):
@@ -102,34 +105,36 @@ Side-by-side comparison of entities.
     - `format` (string): Formatting hint `currency`, `percentage`, etc. (optional).
 - `comparison_type` (string): `stocks`, `etfs`, `sectors`, etc.
 
-#### 9. Sector Performance (`sector_performance`)
+**9. Sector Performance (`sector_performance`)**
 Performance data across sectors.
 - `sectors` (array of objects):
     - `sector` (string): Sector name.
-    - `return_1d` (float): 1-day return % (optional).
-    - `return_1w` (float): 1-week return % (optional).
-    - `return_1m` (float): 1-month return % (optional).
-    - `return_ytd` (float): YTD return % (optional).
+    - `performance_data` (array of objects):
+        - `period` (string): e.g., '1D', '1W', '1M', 'YTD', '1Y'.
+        - `performance` (float): Percentage return.
 - `visualization` (string): `heatmap`, `bar`, `table`.
 
-#### 10. Financial Statement (`financial_statement`)
+**10. Financial Statement (`financial_statement`)**
 Income statement, balance sheet, or cash flow.
 - `statement_type` (string): `income_statement`, `balance_sheet`, `cash_flow`.
-- `periods` (array of strings): List of time periods (e.g., ["2024", "2023"]).
+- `periods` (array of strings): List of time periods (e.g., `["2024", "2023"]`).
 - `rows` (array of objects):
     - `line_item` (string): Name of the line item.
     - `values` (map<string, float>): Map of period to value.
     - `category` (string): Grouping category (optional).
+- `currency` (string): Currency code, default `USD`.
 
-#### 11. Time Series Chart (`time_series_chart`)
-Historical data visualization.
-- `series` (array of objects):
-    - `name` (string): Series name.
-    - `data` (array of objects): List of `{ "timestamp": "ISO_DATE", "value": float }`.
-    - `color` (string): Hex color code (optional).
-    - `chart_type` (string): `line`, `area`, `bar`, `candlestick`.
+**11. Asset Performance (`asset_performance`)**
+Asset performance returns across different time periods.
+- `symbol` (string): Asset symbol.
+- `name` (string): Asset name.
+- `current_price` (float): Current price.
+- `performance_data` (array of objects):
+    - `period` (string): e.g., '1D', '1W', '1M', 'YTD', '1Y', '5Y'.
+    - `performance` (float): Percentage return.
+- `last_updated` (string): ISO timestamp of the data.
 
-#### 12. Allocation Chart (`allocation_chart`)
+**12. Allocation Chart (`allocation_chart`)**
 Distribution breakdown.
 - `allocations` (array of objects):
     - `label` (string): Category label.
@@ -138,8 +143,9 @@ Distribution breakdown.
     - `color` (string): Hex color code (optional).
 - `chart_type` (string): `pie`, `donut`, `treemap`.
 - `allocation_type` (string): `sector`, `asset_class`, `geography`, `holdings`, `market_cap`.
+- `total_value` (float): Total value being allocated (optional).
 
-#### 13. News Feed (`news_feed`)
+**13. News Feed (`news_feed`)**
 Relevant news articles.
 - `articles` (array of objects):
     - `title` (string): Article headline.
@@ -150,20 +156,29 @@ Relevant news articles.
     - `sentiment` (string): `positive`, `negative`, `neutral` (optional).
     - `image_url` (string): Thumbnail URL (optional).
 
-#### 14. Investment Calculator (`investment_calculator`)
+**14. Investment Calculator (`investment_calculator`)**
 Projected growth calculator.
 - `initial_investment` (float): Starting amount.
 - `annual_return` (float): Expected return %.
 - `years` (int): Time horizon.
+- `final_value` (float): Projected final value.
+- `total_return` (float): Total dollar return.
+- `total_return_percent` (float): Total percentage return.
 - `projections` (array of objects):
     - `year` (int): Year number.
     - `value` (float): Projected value.
     - `contributions` (float): Total contributions.
     - `returns` (float): Total returns.
 
-#### 15. Action Suggestions (`action_suggestions`)
+**15. Action Suggestions (`action_suggestions`)**
 Suggested follow-up actions.
 - `suggestions` (array of objects):
     - `label` (string): Display text.
     - `query` (string): Action query to execute.
     - `icon` (string): Icon naming (optional).
+
+#### Errors
+- `404 Not Found`: Session not found.
+- `500 Internal Server Error`: An error occurred during response generation.
+
+---

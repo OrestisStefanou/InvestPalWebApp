@@ -3,12 +3,7 @@ import { Badge } from "../ui/Badge";
 import { TrendingUp, TrendingDown, Briefcase } from "lucide-react";
 
 export function SecurityCard({ data }) {
-    const { symbol, name, price, market_cap, asset_type, sector, change_percent } = data;
-
-    // Note: change_percent is not in the spec but usually accompanies price. 
-    // If not present, I'll assume 0 for now or hide it, but the existing app had it.
-    // The new spec keeps 'price' and 'market_cap' in Security Card. 
-    // Let's assume we might get change data or handle its absence gracefully.
+    const { symbol, name, price, market_cap, asset_type, sector, change_percent, description, industry } = data;
 
     const isPositive = (change_percent || 0) >= 0;
 
@@ -29,6 +24,11 @@ export function SecurityCard({ data }) {
                 </div>
             </CardHeader>
             <CardContent>
+                {description && (
+                    <p className="text-xs text-gray-500 mb-4 italic">
+                        {description}
+                    </p>
+                )}
                 <div className="flex items-baseline justify-between mt-2">
                     <span className="text-3xl font-bold tracking-tight">
                         ${price?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -44,11 +44,13 @@ export function SecurityCard({ data }) {
                 <div className="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-gray-100">
                     <div>
                         <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Market Cap</p>
-                        <p className="font-medium">{market_cap ? `$${market_cap}` : 'N/A'}</p>
+                        <p className="font-medium">{market_cap ? `$${market_cap?.toLocaleString()}` : 'N/A'}</p>
                     </div>
                     <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Sector</p>
-                        <p className="font-medium truncate">{sector || 'N/A'}</p>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Sector / Industry</p>
+                        <p className="font-medium text-xs">
+                            {sector || industry ? `${sector || ''}${sector && industry ? ' • ' : ''}${industry || ''}` : 'N/A'}
+                        </p>
                     </div>
                 </div>
             </CardContent>

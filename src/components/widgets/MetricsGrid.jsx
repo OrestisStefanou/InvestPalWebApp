@@ -1,7 +1,25 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
+import { safeFormatDate } from "../../lib/utils";
 
 export function MetricsGrid({ data }) {
-    const { metrics, columns = 2 } = data;
+    const { metrics, columns = 3 } = data;
+
+    const formatValue = (value, format) => {
+        if (value === null || value === undefined) return '-';
+        switch (format) {
+            case 'currency':
+                return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+            case 'percentage':
+                return `${typeof value === 'number' ? value.toFixed(2) : value}%`;
+            case 'ratio':
+                return typeof value === 'number' ? value.toFixed(2) : value;
+            case 'date':
+                return safeFormatDate(value);
+            case 'number':
+            default:
+                return typeof value === 'number' ? value.toLocaleString() : value;
+        }
+    };
 
     return (
         <Card className="w-full">
@@ -15,10 +33,10 @@ export function MetricsGrid({ data }) {
                 >
                     {metrics?.map((metric, idx) => (
                         <div key={idx} className="p-3 rounded-lg bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                            <p className="text-xs text-gray-500 font-medium truncate mb-1">{metric.label}</p>
+                            <p className="text-xs text-gray-500 font-medium mb-1">{metric.label}</p>
                             <p className="font-semibold text-gray-900 tracking-tight">
-                                {typeof metric.value === 'number' ? metric.value.toLocaleString() : metric.value}
-                                {metric.change && (
+                                {formatValue(metric.value, metric.format)}
+                                {metric.change !== undefined && (
                                     <span className={`ml-2 text-xs ${metric.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                         {metric.change > 0 ? '+' : ''}{metric.change}%
                                     </span>

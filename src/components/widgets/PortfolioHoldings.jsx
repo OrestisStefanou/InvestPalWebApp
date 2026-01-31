@@ -3,7 +3,7 @@ import { Badge } from "../ui/Badge";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 export function PortfolioHoldings({ data }) {
-    const { holdings, total_value } = data;
+    const { holdings = [], total_value } = data;
 
     // Colors for the donut chart
     const COLORS = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#e0f2fe'];
@@ -58,8 +58,9 @@ export function PortfolioHoldings({ data }) {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
-                                    <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
+                                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset</th>
+                                    <th className="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Shares</th>
+                                    <th className="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
                                     <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
                                 </tr>
                             </thead>
@@ -67,10 +68,17 @@ export function PortfolioHoldings({ data }) {
                                 {holdings?.map((holding, idx) => (
                                     <tr key={idx} className="hover:bg-gray-50/50">
                                         <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {holding.symbol}
-                                            <div className="text-[10px] text-gray-500 font-normal">{holding.name}</div>
+                                            <div className="flex flex-col">
+                                                <span>{holding.symbol}</span>
+                                                <span className="text-[10px] text-gray-400 font-normal">
+                                                    {holding.sector || holding.name}
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td className="px-3 py-2 whitespace-nowrap text-sm text-right text-gray-500">
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-right text-gray-500">
+                                            {holding.shares?.toLocaleString() || '-'}
+                                        </td>
+                                        <td className="px-2 py-2 whitespace-nowrap text-sm text-right text-gray-500">
                                             {(holding.weight)?.toFixed(1)}%
                                         </td>
                                         <td className="px-3 py-2 whitespace-nowrap text-sm text-right font-medium text-gray-900">
@@ -82,6 +90,11 @@ export function PortfolioHoldings({ data }) {
                         </table>
                     </div>
                 </div>
+                {data.as_of_date && (
+                    <div className="mt-4 pt-2 border-t border-gray-50 flex justify-end">
+                        <span className="text-[10px] text-gray-400 italic">As of {data.as_of_date}</span>
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

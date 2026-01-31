@@ -2,7 +2,7 @@ import { AlertTriangle, CheckCircle, Info, XCircle } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 export function Alert({ data }) {
-    const { message, severity = "info", actionable } = data;
+    const { message, severity = "info", actionable, action_label } = data;
 
     const styles = {
         info: "bg-blue-50 text-blue-700 border-blue-200",
@@ -25,8 +25,11 @@ export function Alert({ data }) {
                 {message}
             </div>
             {actionable && (
-                <button className="text-xs font-bold underline decoration-2 underline-offset-2 hover:opacity-80">
-                    View
+                <button
+                    onClick={() => data.action_payload && window.dispatchEvent(new CustomEvent('alert-action', { detail: data.action_payload }))}
+                    className="text-xs font-bold underline decoration-2 underline-offset-2 hover:opacity-80"
+                >
+                    {action_label || "View"}
                 </button>
             )}
         </div>

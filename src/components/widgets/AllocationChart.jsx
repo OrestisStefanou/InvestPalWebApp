@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export function AllocationChart({ data }) {
-    const { allocations, allocation_type, chart_type } = data;
+    const { allocations, allocation_type, chart_type, total_value } = data;
     const title = allocation_type ? `${allocation_type.replace('_', ' ')} Allocation` : 'Allocation';
 
     // Custom colors or map from data if provided
@@ -13,7 +13,14 @@ export function AllocationChart({ data }) {
     return (
         <Card className="w-full">
             <CardHeader className="pb-2">
-                <CardTitle className="capitalize">{title}</CardTitle>
+                <CardTitle className="capitalize flex justify-between items-center">
+                    <span>{title}</span>
+                    {total_value && (
+                        <span className="text-sm font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-lg">
+                            ${total_value.toLocaleString()}
+                        </span>
+                    )}
+                </CardTitle>
             </CardHeader>
             <CardContent className="h-[300px] w-full flex flex-col items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
@@ -34,7 +41,7 @@ export function AllocationChart({ data }) {
                         </Pie>
                         <Tooltip
                             formatter={(value, name, props) => {
-                                const percent = props.payload.percentage || ((value / allocations.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1);
+                                const percent = props.payload.percentage || (allocations ? ((value / allocations.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1) : '0');
                                 return [`${percent}% ($${value.toLocaleString()})`, name];
                             }}
                             contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
