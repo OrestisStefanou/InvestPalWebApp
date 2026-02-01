@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { SignIn } from './components/auth/SignIn';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
-const API_BASE_URL = import.meta.env.VITE_INVESTPAL_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_INVESTPAL_API_BASE_URL;
 
 
 function App() {
@@ -55,6 +55,57 @@ function App() {
     }
   };
 
+  const simulateStreaming = async (components) => {
+    if (!components || components.length === 0) return;
+
+    const assistantId = Date.now().toString() + '_bot';
+
+    // Add assistant message shell
+    setMessages(prev => [...prev, {
+      id: assistantId,
+      role: 'assistant',
+      components: []
+    }]);
+
+    for (const component of components) {
+      if (component.type === 'text' && component.content) {
+        const fullText = component.content;
+        let currentText = '';
+
+        // Add empty text component
+        setMessages(prev => prev.map(m =>
+          m.id === assistantId
+            ? { ...m, components: [...m.components, { ...component, content: '' }] }
+            : m
+        ));
+
+        // Typewriter effect
+        const batchSize = 3; // Type 3 chars at once for better feel
+        for (let i = 0; i < fullText.length; i += batchSize) {
+          currentText += fullText.substring(i, i + batchSize);
+          setMessages(prev => prev.map(m => {
+            if (m.id !== assistantId) return m;
+            const newComponents = [...m.components];
+            newComponents[newComponents.length - 1] = {
+              ...newComponents[newComponents.length - 1],
+              content: currentText
+            };
+            return { ...m, components: newComponents };
+          }));
+          await new Promise(r => setTimeout(r, 20));
+        }
+      } else {
+        // Pause slightly before showing widgets for a more organic feel
+        await new Promise(r => setTimeout(r, 600));
+        setMessages(prev => prev.map(m =>
+          m.id === assistantId
+            ? { ...m, components: [...m.components, component] }
+            : m
+        ));
+      }
+    }
+  };
+
   const handleSendMessage = async (manualMessage = null) => {
     const messageToSend = manualMessage || inputMessage.trim();
     if (!messageToSend || !sessionId || isLoading) return;
@@ -66,7 +117,6 @@ function App() {
     const userEntry = {
       id: Date.now().toString(),
       role: 'user',
-      // User message is treated as a text component for uniformity
       components: [{ type: 'text', content: messageToSend }]
     };
 
@@ -87,19 +137,13 @@ function App() {
       if (!response.ok) throw new Error('Failed to send message');
 
       const data = await response.json();
+      setIsLoading(false); // Stop loader before streaming starts
 
-      // The backend returns { components: [...] } based on our investigation
-      const assistantEntry = {
-        id: Date.now().toString() + '_bot',
-        role: 'assistant',
-        components: data.components || [] // Fallback to empty if missing
-      };
-
-      setMessages(prev => [...prev, assistantEntry]);
+      // Simulate streaming the components
+      await simulateStreaming(data.components || []);
     } catch (err) {
       setError('Failed to send message. Check your backend connection.');
       console.error(err);
-    } finally {
       setIsLoading(false);
     }
   };
